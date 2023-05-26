@@ -24,37 +24,60 @@ export class ListsController {
     @Body() createListDto: CreateListDto,
     @Res() response: FastifyReply,
   ) {
-    const list = await this.listsService.create(createListDto);
-    response.status(HttpStatus.OK).send(list);
+    try {
+      const list = await this.listsService.create(createListDto);
+      response.status(HttpStatus.OK).send(list);
+    } catch (e) {
+      response.status(HttpStatus.BAD_REQUEST).send(e.message);
+    }
   }
 
   @Get()
-  findAll() {
-    return this.listsService.findAll();
+  async findAll(@Res() response: FastifyReply) {
+    try {
+      const lists = await this.listsService.findAll();
+      response.status(HttpStatus.OK).send(lists);
+    } catch (e) {
+      response.status(HttpStatus.BAD_REQUEST).send(e.message);
+    }
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.listsService.findOne(+id);
-  // }
   @Patch('reorder/:id')
   async reOrder(
     @Param('id') id: string,
     @Body() reorderListDto: ReorderListDto,
     @Res() response: FastifyReply,
   ) {
-    const { order } = reorderListDto;
-    await this.listsService.reorder(+id, order);
-    response.status(HttpStatus.OK).send('successfully');
+    try {
+      const { order } = reorderListDto;
+      await this.listsService.reorder(+id, order);
+      response.status(HttpStatus.OK).send('successfully');
+    } catch (e) {
+      response.status(HttpStatus.BAD_REQUEST).send(e.message);
+    }
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateListDto: UpdateListDto) {
-    return this.listsService.update(+id, updateListDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateListDto: UpdateListDto,
+    @Res() response: FastifyReply,
+  ) {
+    try {
+      const list = this.listsService.update(+id, updateListDto);
+      response.status(HttpStatus.OK).send(list);
+    } catch (e) {
+      response.status(HttpStatus.BAD_REQUEST).send(e.message);
+    }
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.listsService.remove(+id);
+  remove(@Param('id') id: string, @Res() response: FastifyReply) {
+    try {
+      const list = this.listsService.remove(+id);
+      response.status(HttpStatus.OK).send(list);
+    } catch (e) {
+      response.status(HttpStatus.BAD_REQUEST).send(e.message);
+    }
   }
 }
