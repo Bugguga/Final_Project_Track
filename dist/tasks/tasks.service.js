@@ -19,19 +19,22 @@ let TasksService = class TasksService {
         this.listService = listService;
     }
     async create(createTaskDto, listId) {
+        const { dueDate } = createTaskDto;
+        const [day, month, year] = dueDate.split('-');
+        const dueDate_ = new Date(parseInt(year), parseInt(month) - 1, parseInt(day) + 1);
         const list = await this.prisma.list.findUnique({
             where: { id: listId },
             include: { tasks: true },
         });
         return await this.prisma.task.create({
-            data: Object.assign(Object.assign({}, createTaskDto), { order: list.tasks.length, list: { connect: { id: listId } } }),
+            data: Object.assign(Object.assign({}, createTaskDto), { dueDate: dueDate_, order: list.tasks.length, list: { connect: { id: listId } } }),
         });
     }
     async reOrder(id, order) {
         const task = await this.prisma.task.findUnique({
             where: { id },
         });
-        this.listService.reOrderTask(task.listId, task.order, order);
+        await this.listService.reOrderTask(task.listId, task.order, order);
         return await this.prisma.task.update({
             where: { id },
             data: {
@@ -52,12 +55,33 @@ let TasksService = class TasksService {
         });
     }
     async update(id, updateTaskDto) {
+        const { dueDate } = updateTaskDto;
+        let dueDate_ = null;
+        if (dueDate) {
+            const [day, month, year] = dueDate.split('-');
+            dueDate_ = new Date(parseInt(year), parseInt(month) - 1, parseInt(day) + 1);
+        }
         return await this.prisma.task.update({
             where: { id },
-            data: Object.assign({}, updateTaskDto),
+            data: Object.assign(Object.assign({}, updateTaskDto), { dueDate: dueDate_ }),
         });
     }
     async remove(id) {
+        const task = await this.prisma.task.findUnique({ where: { id } });
+        const list = await this.prisma.list.findUnique({
+            where: { id: task.listId },
+            include: { tasks: true },
+        });
+        list.tasks.forEach(async (t) => {
+            if (t.order > task.order) {
+                await this.prisma.task.update({
+                    where: { id: t.id },
+                    data: {
+                        order: t.order - 1,
+                    },
+                });
+            }
+        });
         return await this.prisma.task.delete({ where: { id } });
     }
 };

@@ -7,8 +7,8 @@ export declare class ListsController {
     private readonly listsService;
     constructor(listsService: ListsService);
     create(createListDto: CreateListDto, response: FastifyReply): Promise<void>;
-    findAll(): Promise<import(".prisma/client").List[]>;
+    findAll(response: FastifyReply): Promise<void>;
     reOrder(id: string, reorderListDto: ReorderListDto, response: FastifyReply): Promise<void>;
-    update(id: string, updateListDto: UpdateListDto): Promise<import(".prisma/client").List>;
-    remove(id: string): Promise<import(".prisma/client").List>;
+    update(id: string, updateListDto: UpdateListDto, response: FastifyReply): void;
+    remove(id: string, response: FastifyReply): void;
 }

@@ -24,7 +24,7 @@ let ListsService = class ListsService {
         return list;
     }
     async findAll() {
-        const lists = await this.prisma.list.findMany();
+        const lists = await this.prisma.list.findMany({ include: { tasks: true } });
         return lists;
     }
     findOne(id) {
@@ -76,7 +76,17 @@ let ListsService = class ListsService {
         });
     }
     async remove(id) {
-        const list = await this.prisma.list.delete({ where: { id } });
+        await this.prisma.task.deleteMany({
+            where: {
+                listId: id,
+            },
+        });
+        const list = await this.prisma.list.delete({
+            where: { id },
+            include: {
+                tasks: true,
+            },
+        });
         const lists = await this.findAll();
         lists.forEach(async (l) => {
             if (l.order > list.order) {

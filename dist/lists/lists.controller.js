@@ -23,22 +23,50 @@ let ListsController = class ListsController {
         this.listsService = listsService;
     }
     async create(createListDto, response) {
-        const list = await this.listsService.create(createListDto);
-        response.status(common_1.HttpStatus.OK).send(list);
+        try {
+            const list = await this.listsService.create(createListDto);
+            response.status(common_1.HttpStatus.OK).send(list);
+        }
+        catch (e) {
+            response.status(common_1.HttpStatus.BAD_REQUEST).send(e.message);
+        }
     }
-    findAll() {
-        return this.listsService.findAll();
+    async findAll(response) {
+        try {
+            const lists = await this.listsService.findAll();
+            response.status(common_1.HttpStatus.OK).send(lists);
+        }
+        catch (e) {
+            response.status(common_1.HttpStatus.BAD_REQUEST).send(e.message);
+        }
     }
     async reOrder(id, reorderListDto, response) {
-        const { order } = reorderListDto;
-        await this.listsService.reorder(+id, order);
-        response.status(common_1.HttpStatus.OK).send('successfully');
+        try {
+            const { order } = reorderListDto;
+            await this.listsService.reorder(+id, order);
+            response.status(common_1.HttpStatus.OK).send('successfully');
+        }
+        catch (e) {
+            response.status(common_1.HttpStatus.BAD_REQUEST).send(e.message);
+        }
     }
-    update(id, updateListDto) {
-        return this.listsService.update(+id, updateListDto);
+    update(id, updateListDto, response) {
+        try {
+            const list = this.listsService.update(+id, updateListDto);
+            response.status(common_1.HttpStatus.OK).send(list);
+        }
+        catch (e) {
+            response.status(common_1.HttpStatus.BAD_REQUEST).send(e.message);
+        }
     }
-    remove(id) {
-        return this.listsService.remove(+id);
+    remove(id, response) {
+        try {
+            const list = this.listsService.remove(+id);
+            response.status(common_1.HttpStatus.OK).send(list);
+        }
+        catch (e) {
+            response.status(common_1.HttpStatus.BAD_REQUEST).send(e.message);
+        }
     }
 };
 __decorate([
@@ -51,9 +79,10 @@ __decorate([
 ], ListsController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
+    __param(0, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
 ], ListsController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Patch)('reorder/:id'),
@@ -68,15 +97,17 @@ __decorate([
     (0, common_1.Patch)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, update_list_dto_1.UpdateListDto]),
+    __metadata("design:paramtypes", [String, update_list_dto_1.UpdateListDto, Object]),
     __metadata("design:returntype", void 0)
 ], ListsController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], ListsController.prototype, "remove", null);
 ListsController = __decorate([

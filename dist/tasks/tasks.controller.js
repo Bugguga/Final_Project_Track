@@ -17,6 +17,8 @@ const common_1 = require("@nestjs/common");
 const tasks_service_1 = require("./tasks.service");
 const create_task_dto_1 = require("./dto/create-task.dto");
 const update_task_dto_1 = require("./dto/update-task.dto");
+const reorder_task_dto_1 = require("./dto/reorder-task.dto");
+const moveToList_task_dto_1 = require("./dto/moveToList-task.dto");
 let TasksController = class TasksController {
     constructor(tasksService) {
         this.tasksService = tasksService;
@@ -30,23 +32,43 @@ let TasksController = class TasksController {
             response.status(common_1.HttpStatus.BAD_REQUEST).send(e.message);
         }
     }
-    findAll() {
-        return this.tasksService.findAll();
-    }
-    findOne(id) {
-        return this.tasksService.findOne(+id);
-    }
-    update(response, id, updateTaskDto) {
+    async reOrder(id, reorderTaskDto, response) {
         try {
-            const task = this.tasksService.update(+id, updateTaskDto);
+            const { order } = reorderTaskDto;
+            const task = await this.tasksService.reOrder(+id, order);
             response.status(common_1.HttpStatus.OK).send(task);
         }
         catch (e) {
             response.status(common_1.HttpStatus.BAD_REQUEST).send(e.message);
         }
     }
-    remove(id) {
-        return this.tasksService.remove(+id);
+    async moveTask(id, moveTaskDto, response) {
+        try {
+            const { listId } = moveTaskDto;
+            const task = await this.tasksService.moveToList(+id, +listId);
+            response.status(common_1.HttpStatus.OK).send(task);
+        }
+        catch (e) {
+            response.status(common_1.HttpStatus.BAD_REQUEST).send(e.message);
+        }
+    }
+    async update(response, id, updateTaskDto) {
+        try {
+            const task = await this.tasksService.update(+id, updateTaskDto);
+            response.status(common_1.HttpStatus.OK).send(task);
+        }
+        catch (e) {
+            response.status(common_1.HttpStatus.BAD_REQUEST).send(e.message);
+        }
+    }
+    async remove(response, id) {
+        try {
+            const task = await this.tasksService.remove(+id);
+            response.status(common_1.HttpStatus.OK).send(task);
+        }
+        catch (e) {
+            response.status(common_1.HttpStatus.BAD_REQUEST).send(e.message);
+        }
     }
 };
 __decorate([
@@ -59,18 +81,23 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], TasksController.prototype, "create", null);
 __decorate([
-    (0, common_1.Get)(),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], TasksController.prototype, "findAll", null);
-__decorate([
-    (0, common_1.Get)(':id'),
+    (0, common_1.Patch)('reorder/:id'),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], TasksController.prototype, "findOne", null);
+    __metadata("design:paramtypes", [String, reorder_task_dto_1.ReorderTaskDto, Object]),
+    __metadata("design:returntype", Promise)
+], TasksController.prototype, "reOrder", null);
+__decorate([
+    (0, common_1.Patch)('moveToList/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, moveToList_task_dto_1.MoveTaskDto, Object]),
+    __metadata("design:returntype", Promise)
+], TasksController.prototype, "moveTask", null);
 __decorate([
     (0, common_1.Patch)(':id'),
     __param(0, (0, common_1.Res)()),
@@ -78,14 +105,15 @@ __decorate([
     __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, String, update_task_dto_1.UpdateTaskDto]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], TasksController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Res)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
 ], TasksController.prototype, "remove", null);
 TasksController = __decorate([
     (0, common_1.Controller)('tasks'),
